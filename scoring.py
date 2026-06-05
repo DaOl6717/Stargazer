@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 def image_score(image):
-    image = neutralise_color(image)
+    image = neutralise_colour(image) # Prova ta bort?
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -56,18 +56,15 @@ def colour_balance_penalty(image):
     
     return penalty
 
-def neutralise_color(image):
-    b, g, r = cv2.split(image)
-
-    mean_b = b.mean()
-    mean_g = g.mean()
-    mean_r = r.mean()
-
-    avg = (mean_b + mean_g + mean_r) / 3.0
-
-    b = b * (avg / (mean_b + 1e-6))
-    g = g * (avg / (mean_g + 1e-6))
-    r = r * (avg / (mean_r + 1e-6))
+def neutralise_colour(image):
+    img = image.astype("float32")
+    b, g, r = cv2.split(img)
+    
+    mean = (b.mean() + g.mean() + r.mean()) / 3.0
+    
+    b *= mean / (b.mean() + 1e-6)
+    g *= mean / (g.mean() + 1e-6)
+    r *= mean / (r.mean() + 1e-6)
 
     img = cv2.merge([b, g, r])
     return np.clip(img, 0, 255).astype(np.uint8)
